@@ -114,8 +114,13 @@ export default {
         },
         {
           icon: 'mdi-chart-bubble',
-          title: 'register',
+          title: 'Register',
           to: '/register'
+        },
+        {
+          icon: 'mdi-chart-bubble',
+          title: 'Login',
+          to: '/login'
         }
       ],
       miniVariant: false,

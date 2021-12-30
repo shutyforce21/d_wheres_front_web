@@ -1,10 +1,6 @@
 <template>
   <div>
     <v-text-field
-      v-model="formData.name"
-      label="Name"
-    />
-    <v-text-field
       v-model="formData.email"
       label="E-mail"
     />
@@ -13,12 +9,7 @@
       type="password"
       label="Password"
     />
-    <v-text-field
-      v-model="formData.password_confirmation"
-      type="password"
-      label="Password_Confirmation"
-    />
-    <v-btn @click="sendForm('http://localhost/api/register')">register</v-btn>
+    <v-btn @click="sendForm('http://localhost/api/login')">login</v-btn>
     <div v-show="this.errMsgs" class="errorMsgBox">
     <p class="errorMsg" v-for="(msg, index) in this.errMsgs" :key="index">
       {{ msg.message && msg.message }}
@@ -33,10 +24,8 @@ export default {
   data() {
     return {
       formData: {
-        name: '',
         email: '',
         password: '',
-        password_confirmation: '',
       },
       errMsgs: []
     }
@@ -45,8 +34,9 @@ export default {
     sendForm: async function(endpoint) {
           try {
             const res = await axios.post(endpoint, this.formData)
-            if (res.data.message == 'success') {
-              this.$router.push('/login')
+            if (res.message == 'success') {
+              this.$router.push('/map')
+              // this.$router.push({ name: 'user', params: { userId: '123' } })
 
             } else {
               this.errMsgs = res.data.errors
