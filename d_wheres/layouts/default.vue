@@ -51,11 +51,16 @@
       <v-toolbar-title v-text="title" />
       <v-spacer />
       <v-btn
-        icon
-        @click.stop="rightDrawer = !rightDrawer"
-      >
-        <v-icon>mdi-menu</v-icon>
-      </v-btn>
+        depressed
+        color="#0277BD"
+        @click="loader = 'loading2'"
+      >Login</v-btn>
+
+      <v-btn
+        depressed
+        color="#00BFA5"
+        @click="loader = 'loading2'"
+      >Register</v-btn>
     </v-app-bar>
     <v-main>
       <v-container>
@@ -111,6 +116,11 @@ export default {
           icon: 'mdi-chart-bubble',
           title: 'Map',
           to: '/map'
+        },
+        {
+          icon: 'mdi-chart-bubble',
+          title: 'Profile',
+          to: '/profile'
         },
         {
           icon: 'mdi-chart-bubble',
