@@ -34,9 +34,21 @@ export default {
     sendForm: async function(endpoint) {
           try {
             const res = await axios.post(endpoint, this.formData)
-            if (res.message == 'success') {
-              this.$router.push('/map')
-              // this.$router.push({ name: 'user', params: { userId: '123' } })
+            if (res.data.message == 'success') {
+
+              //ストレージ削除
+              localStorage.clear();
+              let values = {
+                auth_token : res.data.data.token,
+                user_name : res.data.data.name,
+                user_id : res.data.data.user_id
+              }
+              // DevTools/Application/LocalStorageにObjectで保存
+              localStorage.setItem('authentication', JSON.stringify(values));
+
+              this.$router.push({
+                name: 'profile',
+              })
 
             } else {
               this.errMsgs = res.data.errors
@@ -54,11 +66,6 @@ export default {
 
 
 <style>
-.errorMsgBox {
-  margin-top: 30px;
-  border: solid 1px white;
-  padding: 20px;
-}
 .errorMsg {
   color: red;
   margin-bottom: 0 !important;

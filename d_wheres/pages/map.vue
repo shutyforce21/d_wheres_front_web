@@ -55,8 +55,11 @@ export default {
     };
   },
   mounted() {
-    mapboxgl.accessToken =
-      "pk.eyJ1Ijoic2h1dHlmb3JjZSIsImEiOiJja3c3dG1ja3YxdHN6MnZtbjlobHdpYmU0In0.CUgXUng_QUDPiDEGKnRQQw";
+
+    //ストレージ削除
+              localStorage.clear();
+
+    mapboxgl.accessToken = "pk.eyJ1Ijoic2h1dHlmb3JjZSIsImEiOiJja3c3dG1ja3YxdHN6MnZtbjlobHdpYmU0In0.CUgXUng_QUDPiDEGKnRQQw";
     const map = new mapboxgl.Map({
       container: "map",
       style: "mapbox://styles/mapbox/streets-v11",

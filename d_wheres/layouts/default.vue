@@ -50,17 +50,27 @@
       </v-btn>
       <v-toolbar-title v-text="title" />
       <v-spacer />
-      <v-btn
-        depressed
-        color="#0277BD"
-        @click="loader = 'loading2'"
-      >Login</v-btn>
 
-      <v-btn
-        depressed
-        color="#00BFA5"
-        @click="loader = 'loading2'"
-      >Register</v-btn>
+      <div v-if="authenticated">
+        <v-btn
+          depressed
+          color="red"
+          to="/profile"
+        >Profile</v-btn>
+      </div>
+      <div v-else>
+        <v-btn
+          depressed
+          color="#0277BD"
+          to="/login"
+        >Login</v-btn>
+        <v-btn
+          depressed
+          color="#00BFA5"
+          to="/register"
+        >Register</v-btn>
+      </div>
+
     </v-app-bar>
     <v-main>
       <v-container>
@@ -98,6 +108,7 @@ export default {
   name: 'DefaultLayout',
   data () {
     return {
+      authenticated: false,
       clipped: false,
       drawer: false,
       fixed: false,
@@ -137,6 +148,37 @@ export default {
       right: true,
       rightDrawer: false,
       title: 'Vuetify.js'
+    }
+  },
+  beforeCreate() {
+    axios.get("http://localhost/api/spots")
+      .then((res) => {
+        for (var mkr of res.data.data) {
+          this.features.push({
+            type: "Feature",
+            properties: {
+              message: "Bar",
+              iconSize: [35, 35],
+            },
+            geometry: {
+              type: "Point",
+              coordinates: [
+                Number(mkr.location.latitude),
+                Number(mkr.location.longitude),
+              ],
+            },
+          });
+        }
+        this.showSpots();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  },
+  mounted() {
+    if (localStorage.getItem("authentication")) {
+      let authJson = JSON.parse(window.localStorage.getItem("authentication"));
+      this.authenticated = true;
     }
   }
 }

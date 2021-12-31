@@ -64,11 +64,6 @@ export default {
 
 
 <style>
-.errorMsgBox {
-  margin-top: 30px;
-  border: solid 1px white;
-  padding: 20px;
-}
 .errorMsg {
   color: red;
   margin-bottom: 0 !important;
