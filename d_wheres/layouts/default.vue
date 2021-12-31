@@ -104,6 +104,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: 'DefaultLayout',
   data () {
@@ -150,35 +151,22 @@ export default {
       title: 'Vuetify.js'
     }
   },
-  beforeCreate() {
-    axios.get("http://localhost/api/spots")
-      .then((res) => {
-        for (var mkr of res.data.data) {
-          this.features.push({
-            type: "Feature",
-            properties: {
-              message: "Bar",
-              iconSize: [35, 35],
-            },
-            geometry: {
-              type: "Point",
-              coordinates: [
-                Number(mkr.location.latitude),
-                Number(mkr.location.longitude),
-              ],
-            },
-          });
-        }
-        this.showSpots();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  },
   mounted() {
     if (localStorage.getItem("authentication")) {
-      let authJson = JSON.parse(window.localStorage.getItem("authentication"));
-      this.authenticated = true;
+      let authJson = JSON.parse(localStorage.getItem("authentication"));
+      axios.get(
+        "http://localhost/api/user/is_authenticated",
+        { headers: { Authorization: "Bearer " + authJson.auth_token } }
+      )
+        .then((res) => {
+          if (res.data.message == 'success') {
+            this.authenticated = true;
+          }
+        })
+        .catch((err) => {
+          console.log(2);
+          console.log(err);
+        });
     }
   }
 }
