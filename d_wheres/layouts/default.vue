@@ -131,6 +131,11 @@ export default {
         },
         {
           icon: 'mdi-chart-bubble',
+          title: 'Search',
+          to: '/search'
+        },
+        {
+          icon: 'mdi-chart-bubble',
           title: 'Profile',
           to: '/profile'
         },
