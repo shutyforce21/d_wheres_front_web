@@ -52,6 +52,7 @@
       <v-spacer />
 
       <div v-if="authenticated">
+
         <v-btn
           depressed
           color="red"
@@ -59,17 +60,102 @@
         >Profile</v-btn>
       </div>
       <div v-else>
-        <v-btn
-          depressed
-          color="#0277BD"
-          to="/login"
-        >Login</v-btn>
-        <v-btn
-          depressed
-          color="#00BFA5"
-          to="/register"
-        >Register</v-btn>
+
+          <v-dialog
+            transition="dialog-bottom-transition"
+            max-width="600"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                color="primary"
+                v-bind="attrs"
+                v-on="on"
+              >Login</v-btn>
+            </template>
+            <template v-slot:default="dialog">
+              <v-card>
+                <v-toolbar
+                  color="primary"
+                  dark
+                >Login your account</v-toolbar>
+                <v-text-field
+                  v-model="loginForm.email"
+                  label="E-mail"
+                />
+                <v-text-field
+                  v-model="loginForm.password"
+                  type="password"
+                  label="Password"
+                />
+                <v-btn @click="sendLogin('http://localhost/api/login')">login</v-btn>
+                <v-card-actions class="justify-end">
+                  <v-btn
+                    text
+                    @click="dialog.value = false"
+                  >Close</v-btn>
+                </v-card-actions>
+              </v-card>
+            </template>
+          </v-dialog>
+
+          <v-dialog
+            transition="dialog-top-transition"
+            max-width="600"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                color="success"
+                v-bind="attrs"
+                v-on="on"
+              >Register</v-btn>
+            </template>
+            <template v-slot:default="dialog">
+              <v-card>
+                <v-toolbar
+                  color="primary"
+                  dark
+                >Register your account!!</v-toolbar>
+                <!-- <v-card-text>
+                  <div class="text-h2 pa-12">Hello world!</div>
+                </v-card-text> -->
+                <v-text-field
+                  v-model="registerForm.name"
+                  label="Name"
+                />
+                <v-text-field
+                  v-model="registerForm.email"
+                  label="E-mail"
+                />
+                <v-text-field
+                  v-model="registerForm.password"
+                  type="password"
+                  label="Password"
+                />
+                <v-text-field
+                  v-model="registerForm.password_confirmation"
+                  type="password"
+                  label="Password_Confirmation"
+                />
+                <v-btn @click="sendRegister('http://localhost/api/register')">send</v-btn>
+                <!-- <div v-show="this.errMsgs" class="errorMsgBox">
+                <p class="errorMsg" v-for="(msg, index) in this.errMsgs" :key="index">
+                  {{ msg.message && msg.message }}
+                </p>
+                </div> -->
+                <v-card-actions class="justify-end">
+                  <v-btn
+                    text
+                    @click="dialog.value = false"
+                  >Close</v-btn>
+                </v-card-actions>
+              </v-card>
+            </template>
+          </v-dialog>
+
       </div>
+
+      <v-row justify="space-around">
+  </v-row>
 
     </v-app-bar>
     <v-main>
@@ -113,6 +199,16 @@ export default {
       clipped: false,
       drawer: false,
       fixed: false,
+      registerForm: {
+        name: '',
+        email: '',
+        password: '',
+        password_confirmation: ''
+      },
+      loginForm: {
+        email: '',
+        password: ''
+      },
       items: [
         {
           icon: 'mdi-apps',
@@ -172,6 +268,54 @@ export default {
           console.log(2);
           console.log(err);
         });
+    }
+  },
+  methods: {
+    sendLogin: async function(endpoint) {
+      console.log(1)
+      try {
+        const res = await axios.post(endpoint, this.loginForm)
+        console.log(res)
+        if (res.data.message == 'success') {
+          //ストレージ削除
+          localStorage.clear();
+          let values = {
+            auth_token : res.data.data.token,
+            user_name : res.data.data.name,
+            user_id : res.data.data.user_id
+          }
+          // DevTools/Application/LocalStorageにObjectで保存
+          localStorage.setItem('authentication', JSON.stringify(values));
+
+          console.log(1)
+
+          this.$router.push({
+            name: 'profile',
+          })
+
+        } else {
+          this.errMsgs = res.data.errors
+        }
+
+      } catch (error) {
+          console.log('post Error');
+          console.error(error);
+      }
+    },
+    sendRegister: async function(endpoint) {
+      try {
+        const res = await axios.post(endpoint, this.registerForm)
+        if (res.data.message == 'success') {
+          this.$router.push('/login')
+
+        } else {
+          this.errMsgs = res.data.errors
+        }
+
+      } catch (error) {
+          console.log('post Error');
+          console.error(error);
+      }
     }
   }
 }

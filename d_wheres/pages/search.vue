@@ -95,19 +95,28 @@ export default {
     }
   },
   mounted() {
-    try {
-          const res = axios.get("http://localhost/api/users", {params: {}})
-          if (res.data.message == 'success') {
-            console.log(res);
-
-          } else {
-            this.errMsgs = res.data.errors
-          }
-
-        } catch (error) {
-            console.log('post Error');
-            console.error(error);
+    axios.get("http://localhost/api/spots", {params: {}})
+    .then((res) => {
+      console.log(res.data);
+      if (res.data.message == 'success') {
+        var spots = res.data.data
+        for (var spot of spots) {
+          this.items.push({divider: true, inset: true})
+          this.items.push(
+            {
+              avatar: spot.image,
+              title: spot.name,
+              subtitle: spot.content
+            }
+          )
         }
+      } else {
+        this.errMsgs = res.data.errors
+      }
+    })
+    .catch((err) => {
+
+    })
   }
 }
 </script>
