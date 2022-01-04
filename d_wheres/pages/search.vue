@@ -44,7 +44,7 @@
             <v-img :src="item.avatar"></v-img>
           </v-list-item-avatar>
 
-          <v-list-item-content>
+          <v-list-item-content @click='showSpot(item.id)'>
             <v-list-item-title v-html="item.title"></v-list-item-title>
             <v-list-item-subtitle v-html="item.subtitle"></v-list-item-subtitle>
           </v-list-item-content>
@@ -100,10 +100,12 @@ export default {
       console.log(res.data);
       if (res.data.message == 'success') {
         var spots = res.data.data
+        console.log(spots)
         for (var spot of spots) {
           this.items.push({divider: true, inset: true})
           this.items.push(
             {
+              id: spot.id,
               avatar: spot.image,
               title: spot.name,
               subtitle: spot.content
@@ -117,6 +119,11 @@ export default {
     .catch((err) => {
 
     })
+  },
+  methods: {
+    showSpot(id) {
+      this.$router.push({name: 'spot', query: { spotId: id }})
+    }
   }
 }
 </script>
