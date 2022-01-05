@@ -1,8 +1,7 @@
 <template>
-  <v-card
-    max-width="100%"
-    class="mx-auto"
-  >
+  <v-card max-width="100%" class="mx-auto">
+    <v-btn><v-icon>mdi-account</v-icon>user</v-btn>
+    <v-btn><v-icon>mdi-map-marker</v-icon>spot</v-btn>
     <v-toolbar
       color="cyan"
       dark
@@ -11,10 +10,13 @@
       <!-- <v-toolbar-title> -->
       <!-- </v-toolbar-title> -->
         <v-text-field
-          label="Search User Name"
+          label="Search Spot Name"
+          v-model="searchParams.spot.name"
         ></v-text-field>
       <v-spacer></v-spacer>
-      <v-btn icon>
+      <v-btn icon
+        @click="searchSpot('http://localhost/api/spots')"
+      >
         <v-icon>mdi-magnify</v-icon>
       </v-btn>
       <v-btn icon>
@@ -60,6 +62,14 @@ import axios from 'axios'
 export default {
   data() {
     return {
+      searchParams: {
+        spot: {
+          name: '',
+        },
+        user: {
+          name: '',
+        }
+      },
       items: [
         { header: 'Today' },
         {
@@ -95,7 +105,7 @@ export default {
     }
   },
   mounted() {
-    axios.get("http://localhost/api/spots", {params: {}})
+    axios.get("http://localhost/api/spots")
     .then((res) => {
       console.log(res.data);
       if (res.data.message == 'success') {
@@ -121,6 +131,38 @@ export default {
     })
   },
   methods: {
+    searchSpot() {
+      var spotParams = this.searchParams.spot;
+
+      axios.get("http://localhost/api/spots", {
+        params: {
+          name: spotParams.name
+        }
+      })
+      .then((res) => {
+
+        if (res.data.message == 'success') {
+          const spots = res.data.data
+
+          for (let spot of spots) {
+            this.items.push({divider: true, inset: true})
+            this.items.push(
+              {
+                id: spot.id,
+                avatar: spot.image,
+                title: spot.name,
+                subtitle: spot.content
+              }
+            )
+          }
+        } else {
+          this.errMsgs = res.data.errors
+        }
+      })
+      .catch((err) => {
+
+      })
+    },
     showSpot(id) {
       this.$router.push({name: 'spot', query: { spotId: id }})
     }

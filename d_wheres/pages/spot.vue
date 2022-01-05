@@ -46,7 +46,8 @@ export default {
     }
   },
   mounted() {
-    axios.get("http://localhost/api/spots/1")
+    var spotId = this.$route.query.spotId
+    axios.get(`http://localhost/api/spots/${spotId}`)
     .then((res) => {
       if (res.data.message == 'success') {
         var spotData = res.data.data;

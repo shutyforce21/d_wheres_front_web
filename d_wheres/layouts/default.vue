@@ -53,11 +53,34 @@
 
       <div v-if="authenticated">
 
-        <v-btn
-          depressed
-          color="red"
-          to="/profile"
-        >Profile</v-btn>
+        <v-dialog
+            transition="dialog-bottom-transition"
+            max-width="600"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                color="primary"
+                v-bind="attrs"
+                v-on="on"
+              >Logout</v-btn>
+            </template>
+            <template v-slot:default="dialog">
+              <v-card>
+                <v-toolbar
+                  color="primary"
+                  dark
+                >Logout your account</v-toolbar>
+                <v-btn @click="logout()">logout</v-btn>
+                <v-card-actions class="justify-end">
+                  <v-btn
+                    text
+                    @click="dialog.value = false"
+                  >Close</v-btn>
+                </v-card-actions>
+              </v-card>
+            </template>
+        </v-dialog>
+        
       </div>
       <div v-else>
 
@@ -87,7 +110,7 @@
                   type="password"
                   label="Password"
                 />
-                <v-btn @click="sendLogin('http://localhost/api/login')">login</v-btn>
+                <v-btn @click="login('http://localhost/api/user/login')">login</v-btn>
                 <v-card-actions class="justify-end">
                   <v-btn
                     text
@@ -136,7 +159,7 @@
                   type="password"
                   label="Password_Confirmation"
                 />
-                <v-btn @click="sendRegister('http://localhost/api/register')">send</v-btn>
+                <v-btn @click="register('http://localhost/api/register')">send</v-btn>
                 <!-- <div v-show="this.errMsgs" class="errorMsgBox">
                 <p class="errorMsg" v-for="(msg, index) in this.errMsgs" :key="index">
                   {{ msg.message && msg.message }}
@@ -255,6 +278,7 @@ export default {
   mounted() {
     if (localStorage.getItem("authentication")) {
       let authJson = JSON.parse(localStorage.getItem("authentication"));
+
       axios.get(
         "http://localhost/api/user/is_authenticated",
         { headers: { Authorization: "Bearer " + authJson.auth_token } }
@@ -271,11 +295,9 @@ export default {
     }
   },
   methods: {
-    sendLogin: async function(endpoint) {
-      console.log(1)
+    login: async function(endpoint) {
       try {
         const res = await axios.post(endpoint, this.loginForm)
-        console.log(res)
         if (res.data.message == 'success') {
           //ストレージ削除
           localStorage.clear();
@@ -287,11 +309,7 @@ export default {
           // DevTools/Application/LocalStorageにObjectで保存
           localStorage.setItem('authentication', JSON.stringify(values));
 
-          console.log(1)
-
-          this.$router.push({
-            name: 'profile',
-          })
+          this.$router.push({name: 'profile'})
 
         } else {
           this.errMsgs = res.data.errors
@@ -302,11 +320,33 @@ export default {
           console.error(error);
       }
     },
-    sendRegister: async function(endpoint) {
+    register: async function(endpoint) {
       try {
         const res = await axios.post(endpoint, this.registerForm)
         if (res.data.message == 'success') {
           this.$router.push('/login')
+
+        } else {
+          this.errMsgs = res.data.errors
+        }
+
+      } catch (error) {
+          console.log('post Error');
+          console.error(error);
+      }
+    },
+    logout: async function() {
+      try {
+        let authJson = JSON.parse(localStorage.getItem("authentication"));
+        const res = await axios.get(
+          "http://localhost/api/user/logout",
+          { headers: { Authorization: "Bearer " + authJson.auth_token } }
+        )
+
+        if (res.data.message == 'success') {
+          //ストレージ削除
+          localStorage.clear();
+          this.$router.push('/map')
 
         } else {
           this.errMsgs = res.data.errors
