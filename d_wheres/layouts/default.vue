@@ -80,7 +80,7 @@
               </v-card>
             </template>
         </v-dialog>
-        
+
       </div>
       <div v-else>
 
@@ -110,7 +110,7 @@
                   type="password"
                   label="Password"
                 />
-                <v-btn @click="login('http://localhost/api/user/login')">login</v-btn>
+                <v-btn @click="login('http://localhost/api/login')">login</v-btn>
                 <v-card-actions class="justify-end">
                   <v-btn
                     text
@@ -276,11 +276,12 @@ export default {
     }
   },
   mounted() {
+    
     if (localStorage.getItem("authentication")) {
       let authJson = JSON.parse(localStorage.getItem("authentication"));
 
       axios.get(
-        "http://localhost/api/user/is_authenticated",
+        "http://localhost/api/is_authenticated",
         { headers: { Authorization: "Bearer " + authJson.auth_token } }
       )
         .then((res) => {
@@ -339,7 +340,7 @@ export default {
       try {
         let authJson = JSON.parse(localStorage.getItem("authentication"));
         const res = await axios.get(
-          "http://localhost/api/user/logout",
+          "http://localhost/api/logout",
           { headers: { Authorization: "Bearer " + authJson.auth_token } }
         )
 
