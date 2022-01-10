@@ -15,7 +15,7 @@
             class="ma-2"
             outlined
             color="white"
-            to="/map"
+            to="/updateProfile"
           >
           <v-icon>mdi-account-cog</v-icon>
           Edit profile</v-btn>
@@ -55,10 +55,10 @@ import axios from 'axios'
 export default {
   data() {
     return {
-      user_name: null,
       user_code: null,
       image: require("@/assets/user.svg"),
       background: null,
+      user_name: null,
       follows: 0,
       followers: 0,
       biography: '',
@@ -73,7 +73,6 @@ export default {
   },
   mounted() {
     if (localStorage.getItem("authentication")) {
-
       this.setting.authJson = JSON.parse(localStorage.getItem("authentication"));
       //自身のプロフィールを閲覧する場合
       if (this.setting.user_id === null) {
@@ -86,10 +85,17 @@ export default {
       .then((res) => {
         if (res.data.message == 'success') {
           let userData = res.data.data
-          this.user_name = userData.name
+
           this.user_code = userData.code
-          this.image = userData.profile.image
-          this.background = userData.profile.background
+          if (userData.profile.image) {
+            let imagePath = 'http://localhost:80/'+ userData.profile.image
+            this.image = imagePath
+          }
+          if (userData.profile.background) {
+            let backgroundPath = 'http://localhost:80/'+ userData.profile.background
+            this.background = backgroundPath
+          }
+          this.user_name = userData.profile.name
           this.biography = userData.profile.biography
           this.follows = userData.profile.follows
           this.followers = userData.profile.followers
@@ -110,16 +116,7 @@ export default {
           { headers: { Authorization: "Bearer " + this.setting.authJson.auth_token } }
         )
         .then((res) => {
-          if (res.data.message == 'success') {
-            let userData = res.data.data
-            console.log(userData)
-            this.user_name = userData.name
-            this.user_code = userData.code
-            this.image = userData.profile.image
-            this.background = userData.profile.background
-            this.follows = userData.profile.follows
-            this.followers = userData.profile.followers
-          }
+          if (res.data.message == 'success') {}
         })
         .catch((err) => {
           console.log(err);

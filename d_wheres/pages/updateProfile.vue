@@ -24,7 +24,12 @@
           <div class="input-item">
             <label v-show="uploadedImgIsDefault" class="input_img_label"
               >画像を選択
-              <input type="file" name="image" @change="onImgChange" />
+              <input
+                type="file"
+                name="image"
+                @change="onImgChange"
+                value=
+                 />
             </label>
           </div>
           <v-btn
@@ -42,6 +47,7 @@
           name="name"
           type="name"
           color="teal accent-3"
+          v-model="formData.name"
         />
       </v-list-item>
       <v-list-item>
@@ -49,6 +55,7 @@
           name="biography"
           label="Bio"
           auto-grow
+          v-model="formData.biography"
         ></v-textarea>
       </v-list-item>
 
@@ -62,6 +69,7 @@
             small-chips
             label="Genres"
             multiple
+            v-model="formData.genres"
           ></v-autocomplete>
         </v-list-item-content>
       </v-list-item>
@@ -95,13 +103,64 @@ export default {
         'asfd2',
         'asfd3',
         'asfd4'
-      ]
+      ],
+      setting: {
+        authJson: {},
+        user_id: null
+      },
     };
   },
+  mounted() {
+    this.setting.authJson = JSON.parse(localStorage.getItem("authentication"));
+    //自身のプロフィールを閲覧する場合
+    if (this.setting.user_id === null) {
+      this.setting.user_id = this.setting.authJson.user_id
+    }
+    axios.get(
+        `http://localhost/api/profiles/${this.setting.user_id}`,
+        { headers: { Authorization: "Bearer " + this.setting.authJson.auth_token } }
+      )
+      .then((res) => {
+        if (res.data.message == 'success') {
+          let userData = res.data.data
+          if (userData.profile.image) {
+            this.uploadedImg = 'http://localhost:80/'+ userData.profile.image
+          }
+          if (userData.profile.background) {
+            this.uploadedBackgroundImg = 'http://localhost:80/'+ userData.profile.background
+          }
+          this.formData.name = userData.profile.name
+          this.formData.biography = userData.profile.biography
+          // this.genres = userData.profile.genres
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  },
   methods: {
+    onBackgroundImgChange(e) {
+      const files = e.target.files || e.dataTransfer.files;
+      this.showBackgroundImg(files[0]);
+      this.formData.background = files[0];
+      this.uploadedBackgroundImgIsDefault = false;
+    },
+    showBackgroundImg(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        this.uploadedBackgroundImg = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    },
+    removeBackgroundImg() {
+      this.uploadedBackgroundImg = '';
+      this.uploadedBackgroundImgIsDefault = true;
+    },
+
     onImgChange(e) {
       const files = e.target.files || e.dataTransfer.files;
       this.showImg(files[0]);
+      this.formData.image = files[0];
       this.uploadedImgIsDefault = false;
     },
     // アップロードした画像を表示
@@ -117,40 +176,21 @@ export default {
       this.uploadedImgIsDefault = true;
     },
 
-    onBackgroundImgChange(e) {
-      const files = e.target.files || e.dataTransfer.files;
-      this.showBackgroundImg(files[0]);
-      this.uploadedBackgroundImgIsDefault = false;
-    },
-    showBackgroundImg(file) {
-      const reader = new FileReader();
-      reader.onload = e => {
-        this.uploadedBackgroundImg = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    },
-    removeBackgroundImg() {
-      this.uploadedBackgroundImg = '';
-      this.uploadedBackgroundImgIsDefault = true;
-    },
-    
     sendForm: async function(endpoint) {
+      // デフォ画像ならnullをセット
+      if (this.uploadedImgIsDefault === true) {
+        this.formData.image = null;
+      }
+      if (this.uploadedBackgroundImgIsDefault === true) {
+        this.formData.background = null;
+      }
+      console.log(this.formData)
       try {
         let config = {headers: {'content-type': 'multipart/form-data'}};
         const res = await axios.put(endpoint, this.formData, config)
+        console.log(res);
         if (res.data.message == 'success') {
-          //ストレージ削除
-          localStorage.clear();
-          let values = {
-            auth_token : res.data.data.token,
-            user_name : res.data.data.name,
-            user_id : res.data.data.user_id
-          }
-          // DevTools/Application/LocalStorageにObjectで保存
-          localStorage.setItem('authentication', JSON.stringify(values));
-
           this.$router.push({name: 'profile'})
-
         } else {
           this.errMsgs = res.data.errors
         }

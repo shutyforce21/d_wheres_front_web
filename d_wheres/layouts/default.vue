@@ -260,6 +260,11 @@ export default {
         },
         {
           icon: 'mdi-chart-bubble',
+          title: 'updateProfile',
+          to: '/updateProfile'
+        },
+        {
+          icon: 'mdi-chart-bubble',
           title: 'Register',
           to: '/register'
         },
@@ -276,7 +281,7 @@ export default {
     }
   },
   mounted() {
-    
+
     if (localStorage.getItem("authentication")) {
       let authJson = JSON.parse(localStorage.getItem("authentication"));
 
