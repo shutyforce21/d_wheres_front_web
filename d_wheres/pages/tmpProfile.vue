@@ -1,0 +1,226 @@
+<template>
+  <v-card class="mx-auto" max-width="1000" tile>
+    <v-img class="u_b_img" height="200" :src="uploadedBackgroundImg">
+      <label v-show="uploadedBackgroundImgIsDefault" class="input_background_img_label"
+        >画像を選択
+        <input type="file" name="background" @change="onBackgroundImgChange" />
+      </label>
+      <v-btn
+        outlined
+        color="black"
+        v-show="!uploadedBackgroundImgIsDefault"
+        class="u_b_img_delete_btn"
+        @click="removeBackgroundImg"
+      >削除<v-icon right dark>mdi-trash-can-outline</v-icon></v-btn>
+    </v-img>
+    <v-row style="margin:2.5%;position:absolute; top: 130px">
+      <v-list-item>
+        <v-list-item-avatar size="100">
+          <v-img class="u_img"
+            :src="uploadedImg"
+            alt=""
+          ></v-img>
+        </v-list-item-avatar>
+          <div class="input-item">
+            <label v-show="uploadedImgIsDefault" class="input_img_label"
+              >画像を選択
+              <input type="file" name="image" @change="onImgChange" />
+            </label>
+          </div>
+          <v-btn
+            outlined
+            color="white"
+            v-show="!uploadedImgIsDefault"
+            class="u_img_delete_btn"
+            @click="removeImg"
+          >削除<v-icon right dark>mdi-trash-can-outline</v-icon></v-btn>
+      </v-list-item>
+      <v-list-item>
+        <v-text-field
+          id="named"
+          label="name"
+          name="name"
+          type="name"
+          color="teal accent-3"
+        />
+      </v-list-item>
+      <v-list-item>
+        <v-textarea
+          name="biography"
+          label="Bio"
+          auto-grow
+        ></v-textarea>
+      </v-list-item>
+
+      <v-list-item>
+        <v-list-item-content>
+          <v-autocomplete
+            :items="genres"
+            outlined
+            dense
+            chips
+            small-chips
+            label="Genres"
+            multiple
+          ></v-autocomplete>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item>
+        <v-btn @click="sendForm('http://localhost/api/profiles')">Update</v-btn>
+      </v-list-item>
+    </v-row>
+
+  </v-card>
+</template>
+
+<script>
+import axios from 'axios'
+export default {
+  data() {
+    return {
+      formData: {
+        background: {},
+        image: {},
+        name: '',
+        biography: '',
+        genres: []
+      },
+      uploadedBackgroundImg: {},
+      uploadedBackgroundImgIsDefault: true,
+      uploadedImg: require("@/assets/user.svg"),
+      uploadedImgIsDefault: true,
+      img_name: '',
+      genres: [
+        'asfd1',
+        'asfd2',
+        'asfd3',
+        'asfd4'
+      ]
+    };
+  },
+  methods: {
+    onImgChange(e) {
+      const files = e.target.files || e.dataTransfer.files;
+      this.showImg(files[0]);
+      this.uploadedImgIsDefault = false;
+    },
+    // アップロードした画像を表示
+    showImg(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        this.uploadedImg = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    },
+    removeImg() {
+      this.uploadedImg = require("@/assets/user.svg");
+      this.uploadedImgIsDefault = true;
+    },
+
+    onBackgroundImgChange(e) {
+      const files = e.target.files || e.dataTransfer.files;
+      this.showBackgroundImg(files[0]);
+      this.uploadedBackgroundImgIsDefault = false;
+    },
+    showBackgroundImg(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        this.uploadedBackgroundImg = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    },
+    removeBackgroundImg() {
+      this.uploadedBackgroundImg = '';
+      this.uploadedBackgroundImgIsDefault = true;
+    },
+    
+    sendForm: async function(endpoint) {
+      try {
+        let config = {headers: {'content-type': 'multipart/form-data'}};
+        const res = await axios.put(endpoint, this.formData, config)
+        if (res.data.message == 'success') {
+          //ストレージ削除
+          localStorage.clear();
+          let values = {
+            auth_token : res.data.data.token,
+            user_name : res.data.data.name,
+            user_id : res.data.data.user_id
+          }
+          // DevTools/Application/LocalStorageにObjectで保存
+          localStorage.setItem('authentication', JSON.stringify(values));
+
+          this.$router.push({name: 'profile'})
+
+        } else {
+          this.errMsgs = res.data.errors
+        }
+
+      } catch (error) {
+          console.log('post Error');
+          console.error(error);
+      }
+    }
+  },
+}
+</script>
+
+<style>
+.u_b_img {
+  background: linear-gradient( darkgray, #626263);
+  /* text-align:center; */
+  position:relative;
+}
+.u_img {
+  border: 4px black solid;
+  background-color: darkgray;
+}
+.bio {
+  /* 改行コード有効化 */
+  white-space: pre-wrap;
+}
+.input_img_label > input {
+  display: none;
+}
+
+.input_img_label {
+  padding: 0 1rem;
+  border: solid 1px #888;
+}
+
+.input_img_label::after {
+  content: '+';
+  font-size: 1rem;
+  color: #888;
+  padding-left: 1rem;
+}
+
+.input_background_img_label > input {
+  display: none;
+}
+
+.input_background_img_label {
+  padding: 0 1rem;
+  border: solid 1px rgb(63, 62, 62);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+}
+
+.input_background_img_label::after {
+  content: '+';
+  font-size: 1rem;
+  color: rgb(88, 88, 88);
+  padding-left: 1rem;
+}
+.u_b_img_delete_btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+}
+</style>
