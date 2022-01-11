@@ -74,7 +74,14 @@
         </v-list-item-content>
       </v-list-item>
       <v-list-item>
-        <v-btn @click="sendForm('http://localhost/api/profiles')">Update</v-btn>
+        <v-btn
+          color="primary"
+          @click="sendForm('http://localhost/api/profiles')"
+        >Update</v-btn>
+        <v-btn
+          class="cancel_btn"
+          to="/profile"
+        >Cancel</v-btn>
       </v-list-item>
     </v-row>
 
@@ -124,6 +131,7 @@ export default {
         if (res.data.message == 'success') {
           let userData = res.data.data
           if (userData.profile.image) {
+            // console.log(require('http://localhost:80/'+ userData.profile.image));
             this.uploadedImg = 'http://localhost:80/'+ userData.profile.image
           }
           if (userData.profile.background) {
@@ -262,5 +270,8 @@ export default {
   transform: translate(-50%, -50%);
   -webkit-transform: translate(-50%, -50%);
   -ms-transform: translate(-50%, -50%);
+}
+.cancel_btn {
+  margin-left: 20px;
 }
 </style>
