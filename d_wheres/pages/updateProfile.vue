@@ -22,14 +22,21 @@
           ></v-img>
         </v-list-item-avatar>
           <div class="input-item">
-            <label v-show="uploadedImgIsDefault" class="input_img_label"
+            <label class="input_img_label"
               >画像を選択
               <input
+                v-if="uploadedImgIsDefault"
                 type="file"
                 name="image"
                 @change="onImgChange"
-                value=
-                 />
+                value=''
+              />
+              <input
+                v-else
+                type="hidden"
+                name="image"
+                value='http://localhost:80//image/sample/user.jpg'
+              />
             </label>
           </div>
           <v-btn

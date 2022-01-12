@@ -214,6 +214,7 @@
 
 <script>
 import axios from "axios";
+import { OperateCookie} from "@thunder_fury/operate-cookie"
 export default {
   name: 'DefaultLayout',
   data () {
@@ -277,14 +278,17 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: 'Vuetify.js'
+      title: 'Vuetify.js',
+      token: ''
     }
   },
+  created() {
+
+  },
   mounted() {
-
-    if (localStorage.getItem("authentication")) {
+    
+    // if (token) {
       let authJson = JSON.parse(localStorage.getItem("authentication"));
-
       axios.get(
         "http://localhost/api/is_authenticated",
         { headers: { Authorization: "Bearer " + authJson.auth_token } }
@@ -298,7 +302,7 @@ export default {
           console.log(2);
           console.log(err);
         });
-    }
+    // }
   },
   methods: {
     login: async function(endpoint) {
@@ -306,13 +310,16 @@ export default {
         const res = await axios.post(endpoint, this.loginForm)
         if (res.data.message == 'success') {
           //ストレージ削除
-          localStorage.clear();
+          const { token, name, user_id } = res.data.data
           let values = {
-            auth_token : res.data.data.token,
-            user_name : res.data.data.name,
-            user_id : res.data.data.user_id
+            auth_token : token,
+            user_name : name,
+            user_id
           }
           // DevTools/Application/LocalStorageにObjectで保存
+          // let operateCookie = new OperateCookie
+          // operateCookie.add("token",token , 6000)
+          // operateCookie.add("user_id",user_id , 6000)
           localStorage.setItem('authentication', JSON.stringify(values));
 
           this.$router.push({name: 'profile'})
