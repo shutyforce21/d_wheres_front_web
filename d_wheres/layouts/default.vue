@@ -138,9 +138,6 @@
                   color="primary"
                   dark
                 >Register your account!!</v-toolbar>
-                <!-- <v-card-text>
-                  <div class="text-h2 pa-12">Hello world!</div>
-                </v-card-text> -->
                 <v-text-field
                   v-model="registerForm.name"
                   label="Name"
@@ -214,7 +211,8 @@
 
 <script>
 import axios from "axios";
-import { OperateCookie} from "@thunder_fury/operate-cookie"
+// import $cookies from "cookie-universal-nuxt";
+
 export default {
   name: 'DefaultLayout',
   data () {
@@ -283,15 +281,11 @@ export default {
     }
   },
   created() {
-
-  },
-  mounted() {
-    
-    // if (token) {
-      let authJson = JSON.parse(localStorage.getItem("authentication"));
+    const token = this.$cookies.get('token');
+    if (token) {
       axios.get(
         "http://localhost/api/is_authenticated",
-        { headers: { Authorization: "Bearer " + authJson.auth_token } }
+        { headers: { Authorization: "Bearer " + token } }
       )
         .then((res) => {
           if (res.data.message == 'success') {
@@ -299,30 +293,27 @@ export default {
           }
         })
         .catch((err) => {
-          console.log(2);
           console.log(err);
         });
-    // }
+    }
   },
+  mounted() {},
   methods: {
     login: async function(endpoint) {
       try {
+        // remove all cookies
+        this.$cookies.removeAll();
+
         const res = await axios.post(endpoint, this.loginForm)
         if (res.data.message == 'success') {
-          //ストレージ削除
-          const { token, name, user_id } = res.data.data
-          let values = {
-            auth_token : token,
-            user_name : name,
-            user_id
-          }
-          // DevTools/Application/LocalStorageにObjectで保存
-          // let operateCookie = new OperateCookie
-          // operateCookie.add("token",token , 6000)
-          // operateCookie.add("user_id",user_id , 6000)
-          localStorage.setItem('authentication', JSON.stringify(values));
+          const { token, user_id } = res.data.data;
 
-          this.$router.push({name: 'profile'})
+          this.$cookies.set('token', token);
+          this.$cookies.set('user_id', user_id);
+          //認証フラグをTrue
+          this.authenticated = true;
+
+          this.$router.push('/')
 
         } else {
           this.errMsgs = res.data.errors
@@ -350,16 +341,17 @@ export default {
     },
     logout: async function() {
       try {
-        let authJson = JSON.parse(localStorage.getItem("authentication"));
+        const token = VueCookies.get('token')
         const res = await axios.get(
           "http://localhost/api/logout",
-          { headers: { Authorization: "Bearer " + authJson.auth_token } }
+          { headers: { Authorization: "Bearer " + token } }
         )
 
         if (res.data.message == 'success') {
-          //ストレージ削除
-          localStorage.clear();
-          this.$router.push('/map')
+          // remove all cookies
+          this.$cookies.removeAll();
+          this.authenticated = false;
+          this.$router.push('/')
 
         } else {
           this.errMsgs = res.data.errors
