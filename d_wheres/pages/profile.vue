@@ -45,6 +45,34 @@
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
+      <v-dialog
+        v-if="is_self"
+        transition="dialog-bottom-transition"
+        max-width="600"
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            color="red"
+            v-bind="attrs"
+            v-on="on"
+          >Logout</v-btn>
+        </template>
+        <template v-slot:default="dialog">
+          <v-card>
+            <v-toolbar
+              color="primary"
+              dark
+            >Logout your account</v-toolbar>
+            <v-btn @click="logout">logout</v-btn>
+            <v-card-actions class="justify-end">
+              <v-btn
+                text
+                @click="dialog.value = false"
+              >Close</v-btn>
+            </v-card-actions>
+          </v-card>
+        </template>
+      </v-dialog>
     </v-row>
 
   </v-card>
@@ -65,22 +93,21 @@ export default {
       genres: [],
       is_self: false,
       setting: {
-        authJson: {},
-        user_id: null
+        token: {},
+        request_user_id: null
       },
       master: {}
     }
   },
   mounted() {
-    if (localStorage.getItem("authentication")) {
-      this.setting.authJson = JSON.parse(localStorage.getItem("authentication"));
+    if (this.setting.token = this.$cookies.get('token')) {
       //自身のプロフィールを閲覧する場合
-      if (this.setting.user_id === null) {
-        this.setting.user_id = this.setting.authJson.user_id
+      if (this.setting.request_user_id === null) {
+        this.setting.request_user_id = this.$cookies.get('user_id');
       }
       axios.get(
-        `http://localhost/api/profiles/${this.setting.user_id}`,
-        { headers: { Authorization: "Bearer " + this.setting.authJson.auth_token } }
+        `http://localhost/api/profiles/${this.setting.request_user_id}`,
+        { headers: { Authorization: "Bearer " + this.setting.token } }
       )
       .then((res) => {
         if (res.data.message == 'success') {
@@ -125,6 +152,29 @@ export default {
     htmlText(msg){
       if( !!(msg) ){
         return msg.replace(/\r?\n/g, '<br>')
+      }
+    },
+    logout: async function() {
+      try {
+        const token = this.$cookies.get('token')
+        const res = await axios.get(
+          "http://localhost/api/logout",
+          { headers: { Authorization: "Bearer " + token } }
+        )
+
+        if (res.data.message == 'success') {
+          // remove all cookies
+          this.$cookies.removeAll();
+          this.$router.push({ name:'map',params: { authenticated: false}})
+
+
+        } else {
+          this.errMsgs = res.data.errors
+        }
+
+      } catch (error) {
+          console.log('post Error');
+          console.error(error);
       }
     }
   }

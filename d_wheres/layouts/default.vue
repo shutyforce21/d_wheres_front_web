@@ -30,34 +30,15 @@
       app
     >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-btn
-        icon
-        @click.stop="miniVariant = !miniVariant"
-      >
-        <v-icon>mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}</v-icon>
-      </v-btn>
-      <v-btn
-        icon
-        @click.stop="clipped = !clipped"
-      >
-        <v-icon>mdi-application</v-icon>
-      </v-btn>
-      <v-btn
-        icon
-        @click.stop="fixed = !fixed"
-      >
-        <v-icon>mdi-minus</v-icon>
-      </v-btn>
       <v-toolbar-title v-text="title" />
-      <v-spacer />
 
       <div v-if="authenticated">
-
-        <v-dialog
-            transition="dialog-bottom-transition"
-            max-width="600"
-          >
-            <template v-slot:activator="{ on, attrs }">
+        <v-avatar color="indigo">
+            <v-icon dark>
+              mdi-account-circle
+            </v-icon>
+          </v-avatar>
+            <!-- <template v-slot:activator="{ on, attrs }">
               <v-btn
                 color="primary"
                 v-bind="attrs"
@@ -78,12 +59,10 @@
                   >Close</v-btn>
                 </v-card-actions>
               </v-card>
-            </template>
-        </v-dialog>
-
+            </template> -->
       </div>
       <div v-else>
-
+        <div class="bbbbb">
           <v-dialog
             transition="dialog-bottom-transition"
             max-width="600"
@@ -101,16 +80,20 @@
                   color="primary"
                   dark
                 >Login your account</v-toolbar>
-                <v-text-field
-                  v-model="loginForm.email"
-                  label="E-mail"
-                />
-                <v-text-field
-                  v-model="loginForm.password"
-                  type="password"
-                  label="Password"
-                />
-                <v-btn @click="login('http://localhost/api/login')">login</v-btn>
+                <v-card
+                  class="mx-10"
+                >
+                  <v-text-field
+                    v-model="loginForm.email"
+                    label="E-mail"
+                  />
+                  <v-text-field
+                    v-model="loginForm.password"
+                    type="password"
+                    label="Password"
+                  />
+                  <v-btn @click="login('http://localhost/api/login')">login</v-btn>
+                </v-card>
                 <v-card-actions class="justify-end">
                   <v-btn
                     text
@@ -171,11 +154,12 @@
               </v-card>
             </template>
           </v-dialog>
-
+        </div>
       </div>
+      <!-- <v-spacer /> -->
 
-      <v-row justify="space-around">
-  </v-row>
+      <!-- <v-row justify="space-around"> -->
+  <!-- </v-row> -->
 
     </v-app-bar>
     <v-main>
@@ -239,11 +223,6 @@ export default {
         },
         {
           icon: 'mdi-chart-bubble',
-          title: 'Inspire',
-          to: '/inspire'
-        },
-        {
-          icon: 'mdi-chart-bubble',
           title: 'Map',
           to: '/map'
         },
@@ -259,11 +238,6 @@ export default {
         },
         {
           icon: 'mdi-chart-bubble',
-          title: 'updateProfile',
-          to: '/updateProfile'
-        },
-        {
-          icon: 'mdi-chart-bubble',
           title: 'Register',
           to: '/register'
         },
@@ -276,7 +250,7 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: 'Vuetify.js',
+      title: 'd_wheres',
       token: ''
     }
   },
@@ -338,30 +312,21 @@ export default {
           console.log('post Error');
           console.error(error);
       }
-    },
-    logout: async function() {
-      try {
-        const token = VueCookies.get('token')
-        const res = await axios.get(
-          "http://localhost/api/logout",
-          { headers: { Authorization: "Bearer " + token } }
-        )
-
-        if (res.data.message == 'success') {
-          // remove all cookies
-          this.$cookies.removeAll();
-          this.authenticated = false;
-          this.$router.push('/')
-
-        } else {
-          this.errMsgs = res.data.errors
-        }
-
-      } catch (error) {
-          console.log('post Error');
-          console.error(error);
-      }
     }
   }
 }
 </script>
+
+<style scoped>
+.v-toolbar__title {
+  flex-grow: 1;
+}
+.bbbbb {
+    display: none;
+  }
+@media screen and (min-width: 769px) {
+  .bbbbb {
+    display: block;
+  }
+}
+</style>
