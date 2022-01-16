@@ -119,20 +119,17 @@ export default {
         'asfd4'
       ],
       setting: {
-        authJson: {},
+        token: {},
         user_id: null
       },
     };
   },
   mounted() {
-    this.setting.authJson = JSON.parse(localStorage.getItem("authentication"));
-    //自身のプロフィールを閲覧する場合
-    if (this.setting.user_id === null) {
-      this.setting.user_id = this.setting.authJson.user_id
-    }
+    this.setting.token = this.$cookies.get('token');
+    this.setting.user_id = this.$cookies.get('user_id');
     axios.get(
         `http://localhost/api/profiles/${this.setting.user_id}`,
-        { headers: { Authorization: "Bearer " + this.setting.authJson.auth_token } }
+        { headers: { Authorization: "Bearer " + this.setting.token } }
       )
       .then((res) => {
         if (res.data.message == 'success') {

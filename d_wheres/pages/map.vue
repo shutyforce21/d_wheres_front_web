@@ -39,7 +39,7 @@
       </MglMarker>
       </div>
 
-      <MglGeolocateControl ref="geolocateControl" />
+      <!-- <MglGeolocateControl ref="geolocateControl" /> -->
       </MglMap>
     </client-only>
     <div class="popup" id="js-popup">
@@ -48,17 +48,46 @@
 
           <h4 class="text-center mt-4">Register Spot</h4>
           <v-form>
+            <!-- v-model="formData.image" -->
+            <v-file-input
+              :rules="file_rules"
+              accept="image/png, image/jpeg, image/jpg"
+              placeholder="Upload your documents"
+              label="File input"
+              prepend-icon="mdi-paperclip"
+            >
+              <template v-slot:selection="{ text }">
+                <v-chip
+                  small
+                  label
+                  color="primary"
+                >
+                  {{ text }}
+                </v-chip>
+              </template>
+            </v-file-input>
+
             <v-text-field
               label="Name"
-              name="name"
               type="text"
               color="teal accent-3"
+              v-model="formData.name"
             />
+
+            <v-select
+              v-model="formData.prefecture_id"
+              :items="master.prefectures"
+              item-text="name"
+              item-value="id"
+              label="Prefectures"
+              style='z-index:20001;'
+            ></v-select>
+
             <v-text-field
               label="Address"
-              name="address"
               type="text"
               color="teal accent-3"
+              v-model="formData.address"
             />
              <v-row>
               <v-col
@@ -68,14 +97,14 @@
                 <v-dialog
                   ref="dialog1"
                   v-model="time_modal1"
-                  :return-value.sync="formData.open_at"
+                  :return-value.sync="formData.open_on"
                   persistent
                   width="290px"
                   style='z-index:20001;'
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                      v-model="formData.open_at"
+                      v-model="formData.open_on"
                       label="Open at"
                       prepend-icon="mdi-clock-time-four-outline"
                       readonly
@@ -85,7 +114,7 @@
                   </template>
                   <v-time-picker
                     v-if="time_modal1"
-                    v-model="formData.open_at"
+                    v-model="formData.open_on"
                     full-width
                   >
                     <v-spacer></v-spacer>
@@ -99,7 +128,7 @@
                     <v-btn
                       text
                       color="primary"
-                      @click="$refs.dialog1.save(formData.open_at)"
+                      @click="$refs.dialog1.save(formData.open_on)"
                     >
                       OK
                     </v-btn>
@@ -114,14 +143,14 @@
                 <v-dialog
                   ref="dialog2"
                   v-model="time_modal2"
-                  :return-value.sync="formData.close_at"
+                  :return-value.sync="formData.close_on"
                   persistent
                   width="290px"
                   style='z-index:20001;'
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                      v-model="formData.close_at"
+                      v-model="formData.close_on"
                       label="Close at"
                       prepend-icon="mdi-clock-time-four-outline"
                       readonly
@@ -131,7 +160,7 @@
                   </template>
                   <v-time-picker
                     v-if="time_modal2"
-                    v-model="formData.close_at"
+                    v-model="formData.close_on"
                     full-width
                   >
                     <v-spacer></v-spacer>
@@ -145,7 +174,7 @@
                     <v-btn
                       text
                       color="primary"
-                      @click="$refs.dialog2.save(formData.close_at)"
+                      @click="$refs.dialog2.save(formData.close_on)"
                     >
                       OK
                     </v-btn>
@@ -153,8 +182,12 @@
                 </v-dialog>
               </v-col>
             </v-row>
-
-            {{ newMarker }}
+            <v-textarea
+              name="content"
+              label="detail"
+              auto-grow
+              v-model="formData.content"
+            ></v-textarea>
             <v-btn @click="sendForm()">Register</v-btn>
           </v-form>
       </div>
@@ -165,7 +198,7 @@
 
 <script>
 import Mapbox from 'mapbox-gl'
-
+import axios from 'axios'
 export default {
   data() {
     return {
@@ -182,13 +215,36 @@ export default {
       newMarker: null,
       location: [139.69167, 35.68944],
       zoom: 13,
-      formData: {
-        open_at: null,
-        close_at: null
-      },
+      formData: {},
       time_modal1: false,
-      time_modal2: false
+      time_modal2: false,
+      master: {
+        prefectures: []
+      },
+      file_rules: [
+        // value => !value || value.size < 500000 || 'file size should be less than 500KB!',
+      ],
+      setting: {
+        token: {},
+        request_user_id: null
+      },
     };
+  },
+  mounted() {
+    this.setting.token = this.$cookies.get('token');
+    this.initializeFormData();
+    // 都道府県マスタをセット
+    axios.get("http://localhost/api/master")
+    .then((res) => {
+      if (res.data.message == 'success') {
+        this.master.prefectures = res.data.data.prefectures
+      } else {
+        this.errMsgs = res.data.errors
+      }
+    })
+    .catch((err) => {
+
+    })
   },
   created() {
     this.mapbox = Mapbox;
@@ -219,8 +275,50 @@ export default {
         })
       }
     },
-    sendForm() {
-      console.log(this.formData.close_at);
+    initializeFormData() {
+      this.formData = {
+        name: null,
+        image: null,
+        prefecture_id: null,
+        address: null,
+        content: null,
+        open_on: null,
+        close_on: null,
+        location: {
+          latitude: null,
+          longitude: null,
+        }
+      };
+    },
+    sendForm: async function() {
+      this.formData.location.latitude = String(this.newMarker[1]);
+      this.formData.location.longitude = String(this.newMarker[0]);
+      console.log(this.formData);
+      try {
+        let config = {headers: {
+          Authorization: "Bearer " + this.setting.token,
+          'Accept': 'application/json',
+          'Content-Type': 'multipart/form-data',
+          }};
+        const res = await axios.post(
+          'http://localhost:80/api/spots'
+          , this.formData, config)
+        console.log(res);
+        if (res.data.message == 'success') {
+          console.log(1);
+        } else {
+          console.log(this.res);
+          this.errMsgs = res.data.errors
+        }
+
+      } catch (error) {
+          console.log('post Error');
+          console.error(error);
+      }
+
+    },
+    formReset() {
+
     }
   }
 };
