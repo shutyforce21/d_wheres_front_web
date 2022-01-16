@@ -1,7 +1,11 @@
 <template>
   <v-card max-width="100%" class="mx-auto">
-    <v-btn><v-icon>mdi-account</v-icon>user</v-btn>
-    <v-btn><v-icon>mdi-map-marker</v-icon>spot</v-btn>
+  <v-tabs>
+    <v-tab><v-icon>mdi-account</v-icon>User</v-tab>
+    <v-tab><v-icon>mdi-map-marker</v-icon>Spot</v-tab>
+    <!-- ここ見る！！！！ -->
+    <!-- https://vuetifyjs.com/ja/components/tabs/#section-4f7f304465b9 -->
+  </v-tabs>
     <v-toolbar
       color="cyan"
       dark
@@ -26,7 +30,7 @@
 
     <v-container fluid>
       <v-row align="center">
-        <v-col cols="12">
+          <v-col cols="12">
           <v-autocomplete
             v-model="values"
             :items="master.spot.prefectures"

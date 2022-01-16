@@ -64,6 +64,8 @@
               type="password"
               color="teal accent-3"
             />
+            
+
 
             {{ newMarker }}
             <v-btn @click="sendForm()">Register</v-btn>
