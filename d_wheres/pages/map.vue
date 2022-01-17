@@ -55,6 +55,7 @@
               placeholder="Upload your documents"
               label="File input"
               prepend-icon="mdi-paperclip"
+              v-model="formData.image"
             >
               <template v-slot:selection="{ text }">
                 <v-chip
@@ -222,7 +223,7 @@ export default {
         prefectures: []
       },
       file_rules: [
-        // value => !value || value.size < 500000 || 'file size should be less than 500KB!',
+        value => !value || value.size < 500000 || 'file size should be less than 500KB!',
       ],
       setting: {
         token: {},
@@ -254,6 +255,7 @@ export default {
       console.log(1);
     },
     addMarker(e) {
+      this.initializeFormData()
       this.lngLat = e.mapboxEvent.lngLat
       this.newMarker = [this.lngLat.lng, this.lngLat.lat];
     },
@@ -286,23 +288,49 @@ export default {
         close_on: null,
         location: {
           latitude: null,
-          longitude: null,
+          longitude: null
         }
       };
     },
     sendForm: async function() {
       this.formData.location.latitude = String(this.newMarker[1]);
       this.formData.location.longitude = String(this.newMarker[0]);
-      console.log(this.formData);
+
+      // FormDataに入れないと送れない
+      const sendFormData = new FormData();
+      sendFormData.append(`image`, this.formData.image)
+      sendFormData.append(`name`, this.formData.name)
+
+      axios.post('url', sendFormData)
+      .then((res) => {
+      })
+
+      let config;
       try {
-        let config = {headers: {
-          Authorization: "Bearer " + this.setting.token,
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
+        config = {headers: {
+            'Authorization': "Bearer " + this.setting.token,
+            // 'Accept': 'application/json',
+            'Content-Type': 'multipart/form-data',
           }};
+        // if (this.formData.image) {
+        //   config = {headers: {
+        //     'Authorization': "Bearer " + this.setting.token,
+        //     // 'Accept': 'application/json',
+        //     'Content-Type': 'multipart/form-data',
+        //   }};
+        //   console.log(this.formData, 'あり');
+        // } else {
+        //   config = {headers: {
+        //     'Authorization': "Bearer " + this.setting.token,
+        //     'Accept': 'application/json'
+        //   }};
+        //   console.log(this.formData, 'なし');
+        // }
+
         const res = await axios.post(
           'http://localhost:80/api/spots'
-          , this.formData, config)
+          , JSON.stringify(this.formData), config)
+
         console.log(res);
         if (res.data.message == 'success') {
           console.log(1);
