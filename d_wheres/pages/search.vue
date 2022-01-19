@@ -19,7 +19,7 @@
 
 <script>
 import Users from '~/components/map/Users.vue';
-import Spots from '~/components/map/Spots.vue'
+import Spots from '~/components/map/Spots.vue';
 
 export default {
   components: {

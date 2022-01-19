@@ -90,7 +90,7 @@
               color="teal accent-3"
               v-model="formData.address"
             />
-             <v-row>
+            <v-row>
               <v-col
                 cols="11"
                 md="5"
@@ -242,6 +242,15 @@ export default {
       } else {
         this.errMsgs = res.data.errors
       }
+    }).catch((err) => {});
+
+    axios.get("http://localhost/api/spots")
+    .then((res) => {
+      if (res.data.message == 'success') {
+        console.log(res);
+      } else {
+        this.errMsgs = res.data.errors
+      }
     })
     .catch((err) => {
 
@@ -284,56 +293,45 @@ export default {
         prefecture_id: null,
         address: null,
         content: null,
-        open_on: null,
-        close_on: null,
         location: {
           latitude: null,
           longitude: null
-        }
+        },
+        open_on: null,
+        close_on: null
+        // available_time: {
+        //   open_on: null,
+        //   close_on: null
+        // }
       };
     },
     sendForm: async function() {
       this.formData.location.latitude = String(this.newMarker[1]);
       this.formData.location.longitude = String(this.newMarker[0]);
-
       // FormDataに入れないと送れない
       const sendFormData = new FormData();
-      sendFormData.append(`image`, this.formData.image)
-      sendFormData.append(`name`, this.formData.name)
-
-      axios.post('url', sendFormData)
-      .then((res) => {
-      })
+      sendFormData.append(`image`, this.formData.image);
+      sendFormData.append(`name`, this.formData.name);
+      sendFormData.append(`prefecture_id`, this.formData.prefecture_id);
+      sendFormData.append(`address`, this.formData.address);
+      sendFormData.append(`content`, this.formData.content);
+      sendFormData.append(`open_on`, this.formData.open_on);
+      sendFormData.append(`close_on`, this.formData.close_on);
+      sendFormData.append(`location[latitude]`, this.formData.location.latitude);
+      sendFormData.append(`location[longitude]`, this.formData.location.longitude);
 
       let config;
       try {
         config = {headers: {
             'Authorization': "Bearer " + this.setting.token,
-            // 'Accept': 'application/json',
+            'Accept': 'application/json',
             'Content-Type': 'multipart/form-data',
           }};
-        // if (this.formData.image) {
-        //   config = {headers: {
-        //     'Authorization': "Bearer " + this.setting.token,
-        //     // 'Accept': 'application/json',
-        //     'Content-Type': 'multipart/form-data',
-        //   }};
-        //   console.log(this.formData, 'あり');
-        // } else {
-        //   config = {headers: {
-        //     'Authorization': "Bearer " + this.setting.token,
-        //     'Accept': 'application/json'
-        //   }};
-        //   console.log(this.formData, 'なし');
-        // }
+        const res = await axios.post('http://localhost:80/api/spots', sendFormData, config)
 
-        const res = await axios.post(
-          'http://localhost:80/api/spots'
-          , JSON.stringify(this.formData), config)
-
-        console.log(res);
         if (res.data.message == 'success') {
-          console.log(1);
+          this.$router.push('/map');
+
         } else {
           console.log(this.res);
           this.errMsgs = res.data.errors
@@ -343,7 +341,6 @@ export default {
           console.log('post Error');
           console.error(error);
       }
-
     },
     formReset() {
 
