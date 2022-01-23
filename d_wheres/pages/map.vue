@@ -14,33 +14,114 @@
       <MglMarker v-for="(s, key) in defSpots"
         :key="key"
         :coordinates="s.location"
+        @click="showDetail(key)"
       >
-        <MglPopup>
-          <VCard>
-            <div>{{ s.name }}</div>
-            <div>{{ s.description }}</div>
-          </VCard>
-        </MglPopup>
+        <v-bottom-sheet
+          class="spot-detail"
+          v-model="sheet"
+          inset
+        >
+          <v-sheet
+            class="text-center mx-auto my-12"
+            height="800px"
+          >
+            <v-img
+              height="250"
+              src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
+            ></v-img>
+
+            <v-card-title>Cafe Badilico</v-card-title>
+
+            <v-card-text>
+              <v-row
+                align="center"
+                class="mx-0"
+              >
+                <v-rating
+                  :value="4.5"
+                  color="amber"
+                  dense
+                  half-increments
+                  readonly
+                  size="14"
+                ></v-rating>
+
+                <div class="grey--text ms-4">
+                  4.5 (413)
+                </div>
+              </v-row>
+
+              <div class="my-4 text-subtitle-1">
+                $ • Italian, Cafe
+              </div>
+
+              <div>Small plates, salads & sandwiches - an intimate setting with 12 indoor seats plus patio seating.</div>
+            </v-card-text>
+
+            <v-divider class="mx-4"></v-divider>
+
+            <v-card-title>Tonight's availability</v-card-title>
+
+            <v-card-text>
+              <v-chip-group
+                v-model="selection"
+                active-class="deep-purple accent-4 white--text"
+                column
+              >
+                <v-chip>5:30PM</v-chip>
+
+                <v-chip>7:30PM</v-chip>
+
+                <v-chip>8:00PM</v-chip>
+
+                <v-chip>9:00PM</v-chip>
+              </v-chip-group>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-btn
+                color="deep-purple lighten-2"
+                text
+                @click="reserve"
+              >
+                Reserve
+              </v-btn>
+            </v-card-actions>
+            <v-btn
+              class="mt-6"
+              text
+              color="error"
+              @click="sheet = !sheet"
+            >
+              close
+            </v-btn>
+            <div class="my-3">
+              This is a bottom sheet using the inset prop {{num}}
+            </div>
+          </v-sheet>
+        </v-bottom-sheet>
+
       </MglMarker>
 
       <!-- 登録用マーカー -->
       <div v-if="newMarker">
         <MglMarker
         :coordinates="newMarker"
-      >
-        <MglPopup
-          anchor="top"
         >
-          <VCard>
-            <h2>ここに練習場所を追加する</h2>
-            <v-btn id='js-show-popup' @click="showPopup()">Show Popup</v-btn>
-          </VCard>
-        </MglPopup>
-      </MglMarker>
+          <MglPopup
+            anchor="top"
+          >
+            <VCard>
+              <h2>ここに練習場所を追加する</h2>
+              <v-btn id='js-show-popup' @click="showPopup()">Show Popup</v-btn>
+            </VCard>
+          </MglPopup>
+        </MglMarker>
       </div>
 
+    </MglMap>
+
       <!-- <MglGeolocateControl ref="geolocateControl" /> -->
-      </MglMap>
     </client-only>
     <div class="popup" id="js-popup">
       <div class="popup-inner">
@@ -216,6 +297,13 @@ export default {
       newMarker: null,
       location: [139.69167, 35.68944],
       zoom: 13,
+      num: null,
+      sheet: false,
+      spotDetail: {
+        image: {},
+        name: null,
+        address: null
+      },
       formData: {},
       time_modal1: false,
       time_modal2: false,
@@ -342,8 +430,9 @@ export default {
           console.error(error);
       }
     },
-    formReset() {
-
+    showDetail(key) {
+      this.num = key;
+      this.sheet = true;
     }
   }
 };
@@ -352,7 +441,7 @@ export default {
 <style scoped>
 .map {
   width: 100%;
-  height: 500px;
+  height: 1000px;
 }
 .popup {
   position: fixed;
@@ -406,5 +495,11 @@ export default {
   background-color: rgba(63, 60, 60, 0.8);
   z-index: 1;
   cursor: pointer;
+}
+/* .popup-detail {
+  width: 1000px;
+} */
+.spot-detail {
+  width: 100%;
 }
 </style>
