@@ -11,26 +11,31 @@
       >
 
       <!-- 登録済みマーカー -->
-      <MglMarker v-for="(s, key) in defSpots"
-        :key="key"
-        :coordinates="s.location"
-        @click="showDetail(key)"
+      <div v-if="spots">
+      <MglMarker v-for="spot in spots"
+        :key="spot.id"
+        :coordinates="spot.location"
+        @click="showDetail(spot.id)"
       >
+      </MglMarker>
+      </div>
+
         <v-bottom-sheet
           class="spot-detail"
           v-model="sheet"
           inset
+          background="red"
         >
           <v-sheet
-            class="text-center mx-auto my-12"
-            height="800px"
+            class="text-center mx-auto"
+            height="600px"
           >
             <v-img
               height="250"
-              src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
+              :src="spotDetail.image"
             ></v-img>
 
-            <v-card-title>Cafe Badilico</v-card-title>
+            <v-card-title>{{ spotDetail.name }}</v-card-title>
 
             <v-card-text>
               <v-row
@@ -50,58 +55,36 @@
                   4.5 (413)
                 </div>
               </v-row>
-
-              <div class="my-4 text-subtitle-1">
-                $ • Italian, Cafe
+              <div style="text-align: left; ">
+                <div class="my-4 text-subtitle-1">
+                  $ • Italian, Cafe
+                </div>
+                <div class="address"><v-icon>mdi-map-marker</v-icon>{{ spotDetail.address }}</div>
               </div>
-
-              <div>Small plates, salads & sandwiches - an intimate setting with 12 indoor seats plus patio seating.</div>
             </v-card-text>
 
             <v-divider class="mx-4"></v-divider>
 
-            <v-card-title>Tonight's availability</v-card-title>
+            <v-card-title>Available time</v-card-title>
 
             <v-card-text>
               <v-chip-group
-                v-model="selection"
                 active-class="deep-purple accent-4 white--text"
                 column
               >
-                <v-chip>5:30PM</v-chip>
-
-                <v-chip>7:30PM</v-chip>
-
-                <v-chip>8:00PM</v-chip>
-
-                <v-chip>9:00PM</v-chip>
+                from<v-chip>5:30PM</v-chip>
+                to<v-chip>7:30PM</v-chip>
               </v-chip-group>
             </v-card-text>
 
-            <v-card-actions>
-              <v-btn
-                color="deep-purple lighten-2"
-                text
-                @click="reserve"
-              >
-                Reserve
-              </v-btn>
-            </v-card-actions>
             <v-btn
               class="mt-6"
               text
               color="error"
               @click="sheet = !sheet"
-            >
-              close
-            </v-btn>
-            <div class="my-3">
-              This is a bottom sheet using the inset prop {{num}}
-            </div>
+            >close</v-btn>
           </v-sheet>
         </v-bottom-sheet>
-
-      </MglMarker>
 
       <!-- 登録用マーカー -->
       <div v-if="newMarker">
@@ -143,9 +126,7 @@
                   small
                   label
                   color="primary"
-                >
-                  {{ text }}
-                </v-chip>
+                >{{ text }}</v-chip>
               </template>
             </v-file-input>
 
@@ -286,30 +267,23 @@ export default {
     return {
       accessToken: "pk.eyJ1Ijoic2h1dHlmb3JjZSIsImEiOiJja3c3dG1ja3YxdHN6MnZtbjlobHdpYmU0In0.CUgXUng_QUDPiDEGKnRQQw",
       mapStyle: "mapbox://styles/mapbox/light-v9", // your map style
-      defSpots: [
-        {
-          location: [139.69167, 35.68944],
-        },
-        {
-          location: [139.69138, 35.68925],
-        }
-      ],
-      newMarker: null,
-      location: [139.69167, 35.68944],
+      spots: [], //mapに表示するspot一覧
+      newMarker: null, //mapをクリックした時にプロットするプロットするマーカー
+      location: [139.69167, 35.68944], //初期リロード時の座標
       zoom: 13,
-      num: null,
       sheet: false,
       spotDetail: {
+        id: null,
         image: {},
         name: null,
         address: null
-      },
+      }, //プロットされているマーカーをクリックした時の詳細
       formData: {},
       time_modal1: false,
       time_modal2: false,
       master: {
         prefectures: []
-      },
+      }, //マスタデータ
       file_rules: [
         value => !value || value.size < 500000 || 'file size should be less than 500KB!',
       ],
@@ -335,7 +309,19 @@ export default {
     axios.get("http://localhost/api/spots")
     .then((res) => {
       if (res.data.message == 'success') {
-        console.log(res);
+        res.data.data.forEach(spot => {
+          this.spots.push(
+            {
+              id: spot.id,
+              name: spot.name,
+              location: [
+                spot.location.longitude,
+                spot.location.latitude
+              ],
+            }
+          )
+        });
+        console.log(this.spots);
       } else {
         this.errMsgs = res.data.errors
       }
@@ -430,9 +416,15 @@ export default {
           console.error(error);
       }
     },
-    showDetail(key) {
-      this.num = key;
+    showDetail: async function(spotId) {
+      const res = await axios.get(`http://localhost:80/api/spots/${spotId}`)
+      let spotData = res.data.data;
+      this.spotDetail.id = spotId;
+      this.spotDetail.image = spotData.image;
+      this.spotDetail.name = spotData.name;
+      this.spotDetail.address = spotData.address;
       this.sheet = true;
+      console.log(spotData);
     }
   }
 };
@@ -501,5 +493,8 @@ export default {
 } */
 .spot-detail {
   width: 100%;
+}
+.address {
+
 }
 </style>
