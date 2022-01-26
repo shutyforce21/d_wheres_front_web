@@ -13,7 +13,6 @@
     </v-tab-item>
     </v-tabs>
 
-
   </v-card>
 </template>
 

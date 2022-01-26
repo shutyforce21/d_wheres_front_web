@@ -104,7 +104,6 @@
 
     </MglMap>
 
-      <!-- <MglGeolocateControl ref="geolocateControl" /> -->
     </client-only>
     <div class="popup" id="js-popup">
       <div class="popup-inner">
@@ -112,7 +111,6 @@
 
           <h4 class="text-center mt-4">Register Spot</h4>
           <v-form>
-            <!-- v-model="formData.image" -->
             <v-file-input
               :rules="file_rules"
               accept="image/png, image/jpeg, image/jpg"
