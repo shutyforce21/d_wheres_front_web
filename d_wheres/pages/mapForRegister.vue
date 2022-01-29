@@ -1,5 +1,6 @@
 <template>
   <div class="map">
+
     <client-only>
       <MglMap
         :access-token="accessToken"
@@ -12,80 +13,15 @@
 
       <!-- 登録済みマーカー -->
       <div v-if="spots">
-      <MglMarker v-for="spot in spots"
-        :key="spot.id"
-        :coordinates="spot.location"
-        @click="showDetail(spot.id)"
-      >
-      </MglMarker>
+        <MglMarker v-for="spot in spots"
+          :key="spot.id"
+          :coordinates="spot.location"
+        >
+        </MglMarker>
       </div>
 
-        <v-bottom-sheet
-          class="spot-detail"
-          v-model="sheet"
-          inset
-          background="red"
-        >
-          <v-sheet
-            class="text-center mx-auto"
-            height="600px"
-          >
-            <v-img
-              height="250"
-              :src="spotDetail.image"
-            ></v-img>
-
-            <v-card-title>{{ spotDetail.name }}</v-card-title>
-
-            <v-card-text>
-              <v-row
-                align="center"
-                class="mx-0"
-              >
-                <v-rating
-                  :value="4.5"
-                  color="amber"
-                  dense
-                  half-increments
-                  readonly
-                  size="14"
-                ></v-rating>
-
-                <div class="grey--text ms-4">
-                  4.5 (413)
-                </div>
-              </v-row>
-              <div style="text-align: left; ">
-                <div class="my-4 text-subtitle-1">
-                  $ • Italian, Cafe
-                </div>
-                <div class="address"><v-icon>mdi-map-marker</v-icon>{{ spotDetail.address }}</div>
-              </div>
-            </v-card-text>
-
-            <v-divider class="mx-4"></v-divider>
-
-            <v-card-title>Available time</v-card-title>
-
-            <v-card-text>
-              <v-chip-group
-                active-class="deep-purple accent-4 white--text"
-                column
-              >
-                from<v-chip>5:30PM</v-chip>
-                to<v-chip>7:30PM</v-chip>
-              </v-chip-group>
-            </v-card-text>
-
-            <v-btn
-              class="mt-6"
-              text
-              color="error"
-              @click="sheet = !sheet"
-            >close</v-btn>
-          </v-sheet>
-        </v-bottom-sheet>
-
+      <!-- mapCLick時にpopup表示させる -->
+      <!-- https://soal.github.io/vue-mapbox/guide/markers&popups.html#marker -->
       <!-- 登録用マーカー -->
       <div v-if="newMarker">
         <MglMarker
@@ -93,6 +29,7 @@
         >
           <MglPopup
             anchor="top"
+            showed=true
           >
             <VCard>
               <h2>ここに練習場所を追加する</h2>
@@ -102,9 +39,9 @@
         </MglMarker>
       </div>
 
-    </MglMap>
-
+      </MglMap>
     </client-only>
+
     <div class="popup" id="js-popup">
       <div class="popup-inner">
         <div class="close-btn" id="js-close-btn"><i class="fas fa-times"></i></div>
@@ -251,6 +188,7 @@
             ></v-textarea>
             <v-btn @click="sendForm()">Register</v-btn>
           </v-form>
+
       </div>
       <div class="black-background" id="js-black-bg"></div>
     </div>
@@ -270,12 +208,6 @@ export default {
       location: [139.69167, 35.68944], //初期リロード時の座標
       zoom: 13,
       sheet: false,
-      spotDetail: {
-        id: null,
-        image: {},
-        name: null,
-        address: null
-      }, //プロットされているマーカーをクリックした時の詳細
       formData: {},
       time_modal1: false,
       time_modal2: false,
@@ -414,16 +346,6 @@ export default {
           console.error(error);
       }
     },
-    showDetail: async function(spotId) {
-      const res = await axios.get(`http://localhost:80/api/spots/${spotId}`)
-      let spotData = res.data.data;
-      this.spotDetail.id = spotId;
-      this.spotDetail.image = spotData.image;
-      this.spotDetail.name = spotData.name;
-      this.spotDetail.address = spotData.address;
-      this.sheet = true;
-      console.log(spotData);
-    }
   }
 };
 </script>
