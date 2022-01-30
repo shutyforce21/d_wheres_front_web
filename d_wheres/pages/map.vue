@@ -9,6 +9,17 @@
         @load="onMapLoaded"
       >
 
+      <v-btn
+        color="pink"
+        dark
+        absolute
+        bottom
+        right
+        fab
+      >
+        <v-icon>mdi-plus</v-icon>
+      </v-btn>
+
       <!-- 登録済みマーカー -->
       <div v-if="spots">
         <MglMarker v-for="spot in spots"
@@ -177,7 +188,7 @@ export default {
 <style scoped>
 .map {
   width: 100%;
-  height: 1000px;
+  height: 100vh;
 }
 .popup {
   position: fixed;

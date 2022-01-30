@@ -34,33 +34,12 @@
 
       <div v-if="authenticated">
         <v-avatar color="indigo">
-            <v-icon dark>
-              mdi-account-circle
-            </v-icon>
-          </v-avatar>
-            <!-- <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                color="primary"
-                v-bind="attrs"
-                v-on="on"
-              >Logout</v-btn>
-            </template>
-            <template v-slot:default="dialog">
-              <v-card>
-                <v-toolbar
-                  color="primary"
-                  dark
-                >Logout your account</v-toolbar>
-                <v-btn @click="logout()">logout</v-btn>
-                <v-card-actions class="justify-end">
-                  <v-btn
-                    text
-                    @click="dialog.value = false"
-                  >Close</v-btn>
-                </v-card-actions>
-              </v-card>
-            </template> -->
+          <v-icon dark>
+            mdi-account-circle
+          </v-icon>
+        </v-avatar>
       </div>
+
       <div v-else>
         <div class="bbbbb">
           <v-dialog
@@ -156,10 +135,6 @@
           </v-dialog>
         </div>
       </div>
-      <!-- <v-spacer /> -->
-
-      <!-- <v-row justify="space-around"> -->
-  <!-- </v-row> -->
 
     </v-app-bar>
     <v-main>
@@ -167,29 +142,27 @@
         <Nuxt />
       </v-container>
     </v-main>
-    <v-navigation-drawer
-      v-model="rightDrawer"
-      :right="right"
-      temporary
-      fixed
-    >
-      <v-list>
-        <v-list-item @click.native="right = !right">
-          <v-list-item-action>
-            <v-icon light>
-              mdi-repeat
-            </v-icon>
-          </v-list-item-action>
-          <v-list-item-title>Switch drawer (click me)</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
+
+    <!-- tabのMerginをなくす！ -->
     <v-footer
+      padless=true
+    >
+      <v-tabs
+       align-with-title
+       grow
+       >
+        <v-tab>Tab 1</v-tab>
+        <v-tab>Tab 2</v-tab>
+        <v-tab>Tab 3</v-tab>
+      </v-tabs>
+    </v-footer>
+
+    <!-- <v-footer
       :absolute="!fixed"
       app
     >
       <span>&copy; {{ new Date().getFullYear() }}</span>
-    </v-footer>
+    </v-footer> -->
   </v-app>
 </template>
 
@@ -248,8 +221,6 @@ export default {
         }
       ],
       miniVariant: false,
-      right: true,
-      rightDrawer: false,
       title: 'd_wheres',
       token: ''
     }
@@ -327,6 +298,9 @@ export default {
 @media screen and (min-width: 769px) {
   .bbbbb {
     display: block;
+  }
+  .v-footer {
+    padding: 0px;
   }
 }
 </style>
