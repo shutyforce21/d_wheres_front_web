@@ -143,7 +143,6 @@
       </v-container>
     </v-main>
 
-    <!-- tabのMerginをなくす！ -->
     <v-footer
       padless=true
     >
@@ -151,9 +150,9 @@
        align-with-title
        grow
        >
-        <v-tab>Tab 1</v-tab>
-        <v-tab>Tab 2</v-tab>
-        <v-tab>Tab 3</v-tab>
+        <v-tab style="{margin : 0px}"><v-icon>mdi-map-marker</v-icon></v-tab>
+        <v-tab><v-icon>mdi-magnify</v-icon></v-tab>
+        <v-tab><v-icon>mdi-account</v-icon></v-tab>
       </v-tabs>
     </v-footer>
 
