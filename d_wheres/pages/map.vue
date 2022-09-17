@@ -107,7 +107,7 @@ import axios from 'axios'
 export default {
   data() {
     return {
-      accessToken: "pk.eyJ1Ijoic2h1dHlmb3JjZSIsImEiOiJja3c3dG1ja3YxdHN6MnZtbjlobHdpYmU0In0.CUgXUng_QUDPiDEGKnRQQw",
+      accessToken: "",
       mapStyle: "mapbox://styles/mapbox/light-v9", // your map style
       spots: [], //mapに表示するspot一覧
       location: [139.69167, 35.68944], //初期リロード時の座標
